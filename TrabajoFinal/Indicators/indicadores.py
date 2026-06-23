@@ -1,8 +1,3 @@
-"""
-Indicadores técnicos calculados sobre DataFrames de velas.
-Todos devuelven una pd.Series con el mismo índice que el df de entrada.
-"""
-
 import pandas as pd
 import numpy as np
 
