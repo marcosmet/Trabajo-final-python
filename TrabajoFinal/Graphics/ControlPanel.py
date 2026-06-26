@@ -133,7 +133,7 @@ class ControlPanel(QWidget):
 
         self._checks = {}
         indicadores = [
-            ("volumen",   "Volumen",          True),
+            ("volumen",   "Volumen",          False),  # ◄ CORRECCIÓN: Arranca destildado
             ("ema20",     "EMA 20",           False),
             ("ema50",     "EMA 50",           False),
             ("bollinger", "Bollinger Bands",  False),

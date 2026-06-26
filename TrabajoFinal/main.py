@@ -60,6 +60,15 @@ class App:
         self.panel.set_intervalo(self.interval)
         self.panel.show()
 
+        # ─────────────────────────────────────────────────────────────
+        # SOLUCIÓN AL DESFASE: Sincroniza el estado del menú con el gráfico.
+        # Si tu clase ControlPanel tiene un método para desmarcar cheks, usalo acá.
+        # Si no, asumimos que al disparar el toggle forzado a False se limpia la UI:
+        self.chart.toggle("volumen", False)
+        # Nota: Asegurate de que en el constructor (__init__) de tu ControlPanel
+        # el QCheckBox del volumen se inicialice con setChecked(False).
+        # ─────────────────────────────────────────────────────────────
+
         # Señales del Panel
         self.panel.señales.toggle_indicador.connect(self._on_toggle)
         self.panel.señales.cambiar_temporalidad.connect(self._on_cambiar_temporalidad)
