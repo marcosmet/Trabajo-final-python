@@ -40,6 +40,7 @@ El motor cuenta con un archivo analítico modular (`Indicators/indicadores.py`) 
 * **VWAP (Volume-Weighted Average Price):** Indicador de referencia institucional que calcula el precio promedio ponderado por volumen, clave para identificar el precio justo (*Fair Value*) intradiario.
 * **RSI (Relative Strength Index):** Oscilador de momentum de 14 períodos para identificar la velocidad y el cambio de los movimientos de precios.
 * **MACD (Moving Average Convergence Divergence):** Sistema de cruce de medias con histograma de fuerza integrado para la confirmación de señales de entrada y salida.
+* **Volumen Transaccional:** Panel inferior independiente que muestra la cantidad de operaciones. Utiliza transparencias personalizadas (`CYAN_VOL` y `MAGENTA_VOL`) para integrarse de forma limpia con el fondo oscuro sin saturar la vista.
 
 ---
 
