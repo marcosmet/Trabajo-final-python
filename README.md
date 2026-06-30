@@ -31,24 +31,88 @@ La estructura de datos principal de la plataforma. El motor gráfico devora obje
 
 ---
 
-## 📈 Indicadores Técnicos Integrados
+📈 Indicadores Técnicos y Paneles Integrados
 
-El motor cuenta con un archivo analítico modular (`Indicators/indicadores.py`) que procesa matemáticamente los siguientes algoritmos de mercado:
+El motor procesa y renderiza tanto indicadores clásicos basados en la acción del precio como herramientas analíticas de nivel institucional:
 
-* **EMA (Exponential Moving Average):** Configurada por defecto en períodos de 20 y 50 para la detección de tendencias micro y macro.
-* **Bollinger Bands (BB):** Cálculo de volatilidad estadística mediante desviaciones estándar aplicadas sobre una media móvil, ideal para detectar sobrecompra o canales de compresión (*Squeezes*).
-* **VWAP (Volume-Weighted Average Price):** Indicador de referencia institucional que calcula el precio promedio ponderado por volumen, clave para identificar el precio justo (*Fair Value*) intradiario.
-* **RSI (Relative Strength Index):** Oscilador de momentum de 14 períodos para identificar la velocidad y el cambio de los movimientos de precios.
-* **MACD (Moving Average Convergence Divergence):** Sistema de cruce de medias con histograma de fuerza integrado para la confirmación de señales de entrada y salida.
-* **Volumen Transaccional:** Panel inferior independiente que muestra la cantidad de operaciones. Utiliza transparencias personalizadas (`CYAN_VOL` y `MAGENTA_VOL`) para integrarse de forma limpia con el fondo oscuro sin saturar la vista.
+Live Market Tape (Cinta de Órdenes - Taker Trades): Panel flotante independiente de alta velocidad (Time & Sales) que captura cada orden ejecutada a mercado a nivel global. Utiliza colores nemotécnicos (CYAN para compras institucionales agresivas / Taker Buys y MAGENTA para ventas agresivas / Taker Sells). Representa la transición del trading tradicional hacia el análisis de datos tangibles en tiempo real.
+
+Volumen Transaccional: Panel inferior independiente que muestra la cantidad de operaciones, suavizado con transparencias para no saturar la vista del operador.
+
+EMA (Exponential Moving Average): Medias móviles configuradas en 20 y 50 períodos para detección micro/macro de tendencias directamente sobre el precio.
+
+Bollinger Bands (BB): Cálculo de volatilidad estadística mediante desviaciones estándar aplicadas sobre una media móvil.
+
+VWAP (Volume-Weighted Average Price): Indicador de referencia institucional indispensable que calcula el precio promedio ponderado por volumen para identificar el precio justo intradiario.
+
+RSI & MACD: Osciladores de momentum e histogramas de fuerza integrados para confirmaciones analíticas tradicionales.
 
 ---
 
-## 📂 Estructura del Módulo
+## 📂 Estructura del Proyecto
+
+La arquitectura del sistema sigue un patrón modular limpio, desacoplando de manera estricta la conexión con el bróker, el manejo de estructuras de datos en memoria, la lógica matemática de los indicadores y los componentes visuales de la interfaz de usuario:
 
 ```text
-├── main.py                     # Punto de entrada principal de la aplicación.
+├── main.py                     # Punto de entrada principal del motor gráfico.
+├── requirements.txt            # Archivo de dependencias del entorno de Python.
+├── Binance/
+│   ├── BinanceRest.py          # Cliente API REST para descargas históricas de datos.
+│   └── BinanceWebSocket.py     # Conexión persistente y gestión de streams combinados (Velas + Trades).
+├── Data/
+│   └── KlineManager.py         # Gestor de memoria y formateo dinámico de DataFrames de Pandas.
 ├── Graphics/
-│   └── CandleChart.py          # Motor visual, control de Layouts y temas gráficos.
-└── Indicators/
-    └── indicadores.py          # Funciones matemáticas puras (Cálculo cuantitativo).
+│   ├── CandleChart.py          # Renderizador de gráficos financieros con Finplot.
+│   ├── ControlPanel.py         # Ventana flotante de controles y toggles de indicadores en PyQt5.
+│   └── OrderTape.py            # Componente de cinta de órdenes en tiempo real (Order Flow).
+├── Indicadores/
+│   └── indicadores.py          # Librería matemática pura para cálculos cuantitativos.
+└── Models/
+    └── Vela.py                 # Clase de datos de tipo entidad (Model) para tipado estricto de velas.
+
+
+⚙️ Optimización de UI y Concurrencia Destacada
+Uno de los mayores desafíos de ingeniería fue el control de flujos concurrentes. Los datos del WebSocket se reciben en un hilo secundario y se inyectan a la interfaz gráfica mediante señales Qt estrictamente seguras (pyqtSignal), evitando corrupciones de memoria y congelamientos de UI:
+
+def _on_trade_gui(self, trade_data: dict):
+    """ Dibuja el trade en la UI solo si el panel está visible """
+    if self.tape and self.tape.isVisible():
+        self.tape.agregar_orden(
+            timestamp=trade_data["T"],
+            precio=float(trade_data["p"]),
+            cantidad=float(trade_data["q"]),
+            es_venta=trade_data["m"] # m=True indica Taker Sell (Venta Agresiva)
+        )
+
+Además, el sistema cuenta con optimización pasiva: si la ventana de la cinta de órdenes está oculta, el software descarta visualmente los datos para ahorrar ciclos de CPU, activando el renderizado ultra-rápido solo cuando el operador decide tildar la herramienta.
+
+🔧 Instalación y Requisitos
+Requisitos Previos
+Python 3.10 o superior instalado en el sistema.
+
+Administrador de paquetes de Python (pip) actualizado.
+
+Paso 1: Instalación de Dependencias
+Para configurar el entorno con todas las librerías necesarias para el procesamiento de gráficos, la interfaz de usuario y la conexión de alta frecuencia a la API de Binance, ejecutá el siguiente comando en tu terminal:
+
+Bash
+```text
+pip install pandas finplot PyQt5 pyqtgraph websocket-client
+
+Paso 2: Lanzar la Aplicación
+Una vez completada la instalación de los paquetes, iniciá el motor principal ejecutando:
+
+Bash
+```text
+python main.py
+
+(Opcional) Podés pasar argumentos por consola para iniciar un par o temporalidad específica por defecto:
+
+Bash
+```text
+python main.py --symbol ETHUSDT --interval 5m
+
+
+
+
+
