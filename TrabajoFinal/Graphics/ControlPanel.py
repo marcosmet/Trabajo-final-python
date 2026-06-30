@@ -140,6 +140,7 @@ class ControlPanel(QWidget):
             ("vwap",      "VWAP",             False),
             ("rsi",       "RSI 14",           False),
             ("macd",      "MACD",             False),
+            ("ordertape", "Order Tape (Live)", False),
         ]
 
         for nombre, etiqueta, inicial in indicadores:

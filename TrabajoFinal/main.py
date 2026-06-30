@@ -4,13 +4,14 @@ import sys
 
 import finplot as fplt
 from PyQt5.QtWidgets import QApplication
-from PyQt5.QtCore import Qt, QObject, pyqtSignal  # Importamos herramientas de hilos de Qt
+from PyQt5.QtCore import Qt, QObject, pyqtSignal
 
 from Binance.BinanceRest import BinanceRest
 from Binance.BinanceWebSocket import BinanceWebSocket
 from Data.KlineManager import KlineManager
 from Graphics.CandleChart import CandleChart
 from Graphics.ControlPanel import ControlPanel
+from Graphics.OrderTape import OrderTape  # ◄ NUEVO: Importamos el Order Tape
 
 
 # ─────────────────────────────────────────────────────────────
@@ -18,8 +19,9 @@ from Graphics.ControlPanel import ControlPanel
 # ─────────────────────────────────────────────────────────────
 class MainSignaler(QObject):
     """Canal seguro para enviar datos de hilos de red al hilo principal de la UI."""
-    kline_recibido = pyqtSignal(object, bool)  # Envía (kline, cerrada)
-    reload_completo = pyqtSignal()  # Avisa que terminó la descarga REST
+    kline_recibido = pyqtSignal(object, bool)
+    reload_completo = pyqtSignal()
+    trade_recibido = pyqtSignal(dict)  # ◄ NUEVO: Señal para pasar los trades a la UI
 
 
 def parsear_args():
@@ -42,16 +44,18 @@ class App:
         self.ws = None
         self.chart = None
         self.panel = None
+        self.tape = None  # ◄ NUEVO: Referencia a la ventana de órdenes
 
         # Instanciar el señalador y conectar eventos al hilo principal
         self.signaler = MainSignaler()
         self.signaler.kline_recibido.connect(self._on_kline_gui)
         self.signaler.reload_completo.connect(self._on_reload_gui)
+        self.signaler.trade_recibido.connect(self._on_trade_gui)  # ◄ NUEVO: Conexión de trades
 
     def iniciar(self):
         self._cargar_historico()
 
-        # Gráfico — create_plot debe ir DESPUÉS de QApplication
+        # Gráfico principal
         self.chart = CandleChart(symbol=self.symbol, interval=self.interval)
         self.chart.cargar(self.manager.dataframe())
 
@@ -60,14 +64,10 @@ class App:
         self.panel.set_intervalo(self.interval)
         self.panel.show()
 
-        # ─────────────────────────────────────────────────────────────
-        # SOLUCIÓN AL DESFASE: Sincroniza el estado del menú con el gráfico.
-        # Si tu clase ControlPanel tiene un método para desmarcar cheks, usalo acá.
-        # Si no, asumimos que al disparar el toggle forzado a False se limpia la UI:
+        # ◄ NUEVO: Instanciamos el OrderTape (inicia oculto por el toggle en False)
+        self.tape = OrderTape()
+
         self.chart.toggle("volumen", False)
-        # Nota: Asegurate de que en el constructor (__init__) de tu ControlPanel
-        # el QCheckBox del volumen se inicialice con setChecked(False).
-        # ─────────────────────────────────────────────────────────────
 
         # Señales del Panel
         self.panel.señales.toggle_indicador.connect(self._on_toggle)
@@ -97,7 +97,8 @@ class App:
         self.ws = BinanceWebSocket(
             symbol=self.symbol,
             interval=self.interval,
-            on_kline=self._on_kline
+            on_kline=self._on_kline,
+            on_trade=self._on_trade  # ◄ NUEVO: Pasamos el callback de trades al WS
         )
         self.ws.iniciar()
 
@@ -107,11 +108,13 @@ class App:
     # ── Manejo de Datos en Tiempo Real (Multithread Safe) ──
 
     def _on_kline(self, kline, cerrada):
-        """Callback del WebSocket. Corre en un hilo SECUNDARIO de red. No toca la UI."""
         self.signaler.kline_recibido.emit(kline, cerrada)
 
+    def _on_trade(self, trade_data):
+        """Callback del WebSocket para trades (Hilo secundario)."""
+        self.signaler.trade_recibido.emit(trade_data)
+
     def _on_kline_gui(self, kline, cerrada):
-        """Se ejecuta puramente en el HILO PRINCIPAL. Aquí es seguro actualizar la gráfica."""
         self.manager.actualizar(kline)
         self.chart.refrescar(self.manager.dataframe())
 
@@ -122,9 +125,24 @@ class App:
                 f"L {kline.low:.2f}  C {kline.close:.2f}"
             )
 
+    def _on_trade_gui(self, trade_data: dict):
+        """Dibuja el trade en la UI solo si el panel está visible (Optimización)."""
+        if self.tape and self.tape.isVisible():
+            self.tape.agregar_orden(
+                timestamp=trade_data["T"],
+                precio=float(trade_data["p"]),
+                cantidad=float(trade_data["q"]),
+                es_venta=trade_data["m"]
+            )
+
     def _on_toggle(self, nombre: str, activo: bool):
-        if self.chart:
-            self.chart.toggle(nombre, activo)
+        # ◄ NUEVO: Interceptamos el tape para no mandárselo a Finplot
+        if nombre == "ordertape":
+            if self.tape:
+                self.tape.show() if activo else self.tape.hide()
+        else:
+            if self.chart:
+                self.chart.toggle(nombre, activo)
 
     def _on_cambiar_temporalidad(self, symbol: str, interval: str):
         if symbol == self.symbol and interval == self.interval:
@@ -142,15 +160,12 @@ class App:
         self.interval = interval
 
         def _reload():
-            # La descarga REST bloqueante se ejecuta fuera de la UI para que no se congele la app
             self._cargar_historico()
-            # Notificamos de forma segura al hilo principal para redesplegar el gráfico
             self.signaler.reload_completo.emit()
 
         threading.Thread(target=_reload, daemon=True).start()
 
     def _on_reload_gui(self):
-        """Actualizaciones de UI tras cambiar de temporalidad (Hilo Principal)."""
         self.chart.cambiar_titulo(self.symbol, self.interval)
         self.chart.refrescar(self.manager.dataframe())
         self._iniciar_ws()
@@ -171,7 +186,6 @@ def main():
     print(f"  Histórico : {limit} velas")
     print(f"{'─' * 42}\n")
 
-    # QApplication DEBE existir antes de cualquier widget Qt
     qapp = QApplication.instance() or QApplication(sys.argv)
 
     app = App(symbol=symbol, interval=interval, limit=limit)
