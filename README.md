@@ -68,12 +68,13 @@ La arquitectura del sistema sigue un patrón modular limpio, desacoplando de man
 ├── Indicadores/
 │   └── indicadores.py          # Librería matemática pura para cálculos cuantitativos.
 └── Models/
-    └── Vela.py                 # Clase de datos de tipo entidad (Model) para tipado estricto de velas.
+    └── Vela.py                 # Clase de datos de tipo entidad (Model) para tipado estricto de velas.```
 
 
 ⚙️ Optimización de UI y Concurrencia Destacada
 Uno de los mayores desafíos de ingeniería fue el control de flujos concurrentes. Los datos del WebSocket se reciben en un hilo secundario y se inyectan a la interfaz gráfica mediante señales Qt estrictamente seguras (pyqtSignal), evitando corrupciones de memoria y congelamientos de UI:
 
+```text
 def _on_trade_gui(self, trade_data: dict):
     """ Dibuja el trade en la UI solo si el panel está visible """
     if self.tape and self.tape.isVisible():
@@ -82,7 +83,7 @@ def _on_trade_gui(self, trade_data: dict):
             precio=float(trade_data["p"]),
             cantidad=float(trade_data["q"]),
             es_venta=trade_data["m"] # m=True indica Taker Sell (Venta Agresiva)
-        )
+        )```
 
 Además, el sistema cuenta con optimización pasiva: si la ventana de la cinta de órdenes está oculta, el software descarta visualmente los datos para ahorrar ciclos de CPU, activando el renderizado ultra-rápido solo cuando el operador decide tildar la herramienta.
 
@@ -98,6 +99,7 @@ Para configurar el entorno con todas las librerías necesarias para el procesami
 Bash
 ```text
 pip install pandas finplot PyQt5 pyqtgraph websocket-client
+```
 
 Paso 2: Lanzar la Aplicación
 Una vez completada la instalación de los paquetes, iniciá el motor principal ejecutando:
@@ -105,13 +107,14 @@ Una vez completada la instalación de los paquetes, iniciá el motor principal e
 Bash
 ```text
 python main.py
+```
 
 (Opcional) Podés pasar argumentos por consola para iniciar un par o temporalidad específica por defecto:
 
 Bash
 ```text
 python main.py --symbol ETHUSDT --interval 5m
-
+```
 
 
 
