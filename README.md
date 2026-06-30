@@ -84,7 +84,8 @@ def _on_trade_gui(self, trade_data: dict):
             precio=float(trade_data["p"]),
             cantidad=float(trade_data["q"]),
             es_venta=trade_data["m"] # m=True indica Taker Sell (Venta Agresiva)
-        )```
+        )
+```
 
 Además, el sistema cuenta con optimización pasiva: si la ventana de la cinta de órdenes está oculta, el software descarta visualmente los datos para ahorrar ciclos de CPU, activando el renderizado ultra-rápido solo cuando el operador decide tildar la herramienta.
 
