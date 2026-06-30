@@ -68,7 +68,8 @@ La arquitectura del sistema sigue un patrón modular limpio, desacoplando de man
 ├── Indicadores/
 │   └── indicadores.py          # Librería matemática pura para cálculos cuantitativos.
 └── Models/
-    └── Vela.py                 # Clase de datos de tipo entidad (Model) para tipado estricto de velas.```
+    └── Vela.py                 # Clase de datos de tipo entidad (Model) para tipado estricto de velas.
+```
 
 
 ⚙️ Optimización de UI y Concurrencia Destacada
