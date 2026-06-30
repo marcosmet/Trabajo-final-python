@@ -35,17 +35,17 @@ La estructura de datos principal de la plataforma. El motor gráfico devora obje
 
 El motor procesa y renderiza tanto indicadores clásicos basados en la acción del precio como herramientas analíticas de nivel institucional:
 
-### Live Market Tape (Cinta de Órdenes - Taker Trades): Panel flotante independiente de alta velocidad (Time & Sales) que captura cada orden ejecutada a mercado a nivel global. Utiliza colores nemotécnicos (CYAN para compras institucionales agresivas / Taker Buys y MAGENTA para ventas agresivas / Taker Sells). Representa la transición del trading tradicional hacia el análisis de datos tangibles en tiempo real.
+* **Live Market Tape (Cinta de Órdenes - Taker Trades):** Panel flotante independiente de alta velocidad (Time & Sales) que captura cada orden ejecutada a mercado a nivel global. Utiliza colores nemotécnicos (CYAN para compras institucionales agresivas / Taker Buys y MAGENTA para ventas agresivas / Taker Sells). Representa la transición del trading tradicional hacia el análisis de datos tangibles en tiempo real.
 
-### Volumen Transaccional: Panel inferior independiente que muestra la cantidad de operaciones, suavizado con transparencias para no saturar la vista del operador.
+* **Volumen Transaccional:** Panel inferior independiente que muestra la cantidad de operaciones, suavizado con transparencias para no saturar la vista del operador.
 
-### EMA (Exponential Moving Average): Medias móviles configuradas en 20 y 50 períodos para detección micro/macro de tendencias directamente sobre el precio.
+* **EMA (Exponential Moving Average):** Medias móviles configuradas en 20 y 50 períodos para detección micro/macro de tendencias directamente sobre el precio.
 
-### Bollinger Bands (BB): Cálculo de volatilidad estadística mediante desviaciones estándar aplicadas sobre una media móvil.
+* **Bollinger Bands (BB):** Cálculo de volatilidad estadística mediante desviaciones estándar aplicadas sobre una media móvil.
 
-### VWAP (Volume-Weighted Average Price): Indicador de referencia institucional indispensable que calcula el precio promedio ponderado por volumen para identificar el precio justo intradiario.
+* **VWAP (Volume-Weighted Average Price):** Indicador de referencia institucional indispensable que calcula el precio promedio ponderado por volumen para identificar el precio justo intradiario.
 
-### RSI & MACD: Osciladores de momentum e histogramas de fuerza integrados para confirmaciones analíticas tradicionales.
+* **RSI & MACD:** Osciladores de momentum e histogramas de fuerza integrados para confirmaciones analíticas tradicionales.
 
 ---
 
@@ -98,7 +98,7 @@ Python 3.10 o superior instalado en el sistema.
 
 Administrador de paquetes de Python (pip) actualizado.
 
-Paso 1: Instalación de Dependencias
+* **Paso 1: Instalación de Dependencias**
 Para configurar el entorno con todas las librerías necesarias para el procesamiento de gráficos, la interfaz de usuario y la conexión de alta frecuencia a la API de Binance, ejecutá el siguiente comando en tu terminal:
 
 Bash
@@ -106,7 +106,7 @@ Bash
 pip install pandas finplot PyQt5 pyqtgraph websocket-client
 ```
 
-Paso 2: Lanzar la Aplicación
+* **Paso 2: Lanzar la Aplicación**
 Una vez completada la instalación de los paquetes, iniciá el motor principal ejecutando:
 
 Bash
