@@ -31,21 +31,21 @@ La estructura de datos principal de la plataforma. El motor gráfico devora obje
 
 ---
 
-📈 Indicadores Técnicos y Paneles Integrados
+## 📈 Indicadores Técnicos y Paneles Integrados
 
 El motor procesa y renderiza tanto indicadores clásicos basados en la acción del precio como herramientas analíticas de nivel institucional:
 
-Live Market Tape (Cinta de Órdenes - Taker Trades): Panel flotante independiente de alta velocidad (Time & Sales) que captura cada orden ejecutada a mercado a nivel global. Utiliza colores nemotécnicos (CYAN para compras institucionales agresivas / Taker Buys y MAGENTA para ventas agresivas / Taker Sells). Representa la transición del trading tradicional hacia el análisis de datos tangibles en tiempo real.
+### Live Market Tape (Cinta de Órdenes - Taker Trades): Panel flotante independiente de alta velocidad (Time & Sales) que captura cada orden ejecutada a mercado a nivel global. Utiliza colores nemotécnicos (CYAN para compras institucionales agresivas / Taker Buys y MAGENTA para ventas agresivas / Taker Sells). Representa la transición del trading tradicional hacia el análisis de datos tangibles en tiempo real.
 
-Volumen Transaccional: Panel inferior independiente que muestra la cantidad de operaciones, suavizado con transparencias para no saturar la vista del operador.
+### Volumen Transaccional: Panel inferior independiente que muestra la cantidad de operaciones, suavizado con transparencias para no saturar la vista del operador.
 
-EMA (Exponential Moving Average): Medias móviles configuradas en 20 y 50 períodos para detección micro/macro de tendencias directamente sobre el precio.
+### EMA (Exponential Moving Average): Medias móviles configuradas en 20 y 50 períodos para detección micro/macro de tendencias directamente sobre el precio.
 
-Bollinger Bands (BB): Cálculo de volatilidad estadística mediante desviaciones estándar aplicadas sobre una media móvil.
+### Bollinger Bands (BB): Cálculo de volatilidad estadística mediante desviaciones estándar aplicadas sobre una media móvil.
 
-VWAP (Volume-Weighted Average Price): Indicador de referencia institucional indispensable que calcula el precio promedio ponderado por volumen para identificar el precio justo intradiario.
+### VWAP (Volume-Weighted Average Price): Indicador de referencia institucional indispensable que calcula el precio promedio ponderado por volumen para identificar el precio justo intradiario.
 
-RSI & MACD: Osciladores de momentum e histogramas de fuerza integrados para confirmaciones analíticas tradicionales.
+### RSI & MACD: Osciladores de momentum e histogramas de fuerza integrados para confirmaciones analíticas tradicionales.
 
 ---
 
@@ -71,8 +71,9 @@ La arquitectura del sistema sigue un patrón modular limpio, desacoplando de man
     └── Vela.py                 # Clase de datos de tipo entidad (Model) para tipado estricto de velas.
 ```
 
+---
 
-⚙️ Optimización de UI y Concurrencia Destacada
+## ⚙️ Optimización de UI y Concurrencia Destacada
 Uno de los mayores desafíos de ingeniería fue el control de flujos concurrentes. Los datos del WebSocket se reciben en un hilo secundario y se inyectan a la interfaz gráfica mediante señales Qt estrictamente seguras (pyqtSignal), evitando corrupciones de memoria y congelamientos de UI:
 
 ```text
@@ -89,7 +90,9 @@ def _on_trade_gui(self, trade_data: dict):
 
 Además, el sistema cuenta con optimización pasiva: si la ventana de la cinta de órdenes está oculta, el software descarta visualmente los datos para ahorrar ciclos de CPU, activando el renderizado ultra-rápido solo cuando el operador decide tildar la herramienta.
 
-🔧 Instalación y Requisitos
+---
+
+## 🔧 Instalación y Requisitos
 Requisitos Previos
 Python 3.10 o superior instalado en el sistema.
 
